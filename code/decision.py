@@ -21,11 +21,7 @@ def decision_step(Rover):
                 if Rover.vel < Rover.max_vel:
                     # Set throttle value to throttle setting
                     Rover.throttle = Rover.throttle_set
-                elif len(Rover.worldmap[:,:,1]) > 0 :
-                    Rover.brake = Rover.brake_set
-                    Rover.throttle = 0
-                    Rover.steer =np.mean(Rover.rock_angles * 180/np.pi)
-                        
+                                        
                 else: # Else coast
                     Rover.throttle = 0
                 Rover.brake = 0
@@ -33,7 +29,7 @@ def decision_step(Rover):
                 Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
             # If there's a lack of navigable terrain pixels then go to 'stop' mode
        
-            elif len(Rover.nav_angles) < Rover.stop_forward:
+            elif len(Rover.nav_angles) < Rover.stop_forward or len(Rover.worldmap[:,:,1]) > 0 :
                     # Set mode to "stop" and hit the brakes!
                     Rover.throttle = 0
                     # Set brake to stored brake value
@@ -71,6 +67,9 @@ def decision_step(Rover):
                     # Set steer to mean angle
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
                     Rover.mode = 'forward'
+                elif len(Rover.worldmap[:,:,1]) > 0 :
+                    Rover.steer =np.mean(Rover.rock_angles * 180/np.pi)  
+                    
     # Just to make the rover do something 
     # even if no modifications have been made to the code
     else:
