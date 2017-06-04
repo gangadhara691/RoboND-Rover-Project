@@ -13,22 +13,18 @@ def decision_step(Rover):
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:
         # Check for Rover.mode status
-        if len(Rover.vision_image[:,:,1]) > 100:
-                    Rover.throttle = 0
-                    Rover.brake = Rover.brake_set
-                    Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                    Rover.mode = 'stop'
-        if Rover.mode == 'forward': 
+        if len(Rover.vision_image[:,:,1]) > 500:
+            Rover.mode = 'rock'
+            # Rover.throttle = 0
+            # Rover.brake = Rover.brake_set
+            # Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+            
+        elif Rover.mode == 'forward': 
             # Check the extent of navigable terrain
-            if len(Rover.vision_image[:,:,1]) > 100:
-                    Rover.throttle = 0
-                    Rover.brake = Rover.brake_set
-                    Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                    Rover.mode = 'stop'
-            elif len(Rover.nav_angles) >= Rover.stop_forward:  
+            
+            if len(Rover.nav_angles) >= Rover.stop_forward:  
                 # If mode is forward, navigable terrain looks good 
                 # and velocity is below max, then throttle 
-                
                 if Rover.vel < Rover.max_vel:
                     # Set throttle value to throttle setting
                     Rover.throttle = Rover.throttle_set
@@ -38,6 +34,11 @@ def decision_step(Rover):
                 Rover.brake = 0
                 # Set steering to average angle clipped to the range +/- 15
                 Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+                # if len(Rover.vision_image[:,:,1]) > 100:
+                #        # Rover.mode = 'rock'
+                #     Rover.throttle = 0
+                #     Rover.brake = Rover.brake_set
+                #     Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
                 
             # If there's a lack of navigable terrain pixels then go to 'stop' mode
             
@@ -50,7 +51,22 @@ def decision_step(Rover):
                     Rover.brake = Rover.brake_set
                     Rover.steer = 0
                     Rover.mode = 'stop'
-                               
+        # elif Rover.mode == "rock":
+        #     if np.mean(Rover.rock_angles * 180/np.pi) in range(-15,15):
+        #         Rover.throttle =0.1
+        #         # Release the brake
+        #         Rover.brake = 0
+        #         # Set steer to mean angle
+        #         Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+        #         Rover.mode = 'forward'
+        #     else:
+        #         Rover.throttle = 0
+        #         Rover.brake = Rover.brake_set
+        #         Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+                
+                
+                
+                
         # If we're already in "stop" mode then make different decisions
         elif Rover.mode == 'stop':
             # If we're in stop mode but still moving keep braking
@@ -67,18 +83,42 @@ def decision_step(Rover):
                     Rover.brake = 0
                     # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
                     Rover.steer = -15 # Could be more clever here about which way to turn
-                elif len(Rover.vision_image[:,:,1]) > 100:
+                if len(Rover.nav_angles) >= Rover.go_forward:
+                    # Set throttle back to stored value
+                    Rover.throttle = 0.2
+                    # Release the brake
+                    Rover.brake = 0
+                    # Set steer to mean angle
+                    Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
+                    Rover.mode = 'forward'
+                if  Rover.rock_dists <15:#len(Rover.vision_image[:,:,1]) > 500 and
                     Rover.throttle = 0
                     Rover.brake = Rover.brake_set
                     Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                    Rover.mode = 'stop'        
+                    Rover.mode = 'rock'
+        elif Rover.mode == 'rock':
+            # If we're in stop mode but still moving keep braking
+            if Rover.vel > 0.2:
+                Rover.throttle = 0
+                Rover.brake = Rover.brake_set
+                Rover.steer = 0
+            # If we're not moving (vel < 0.2) then do something else
+            elif Rover.vel <= 0.2 :
+                # Now we're stopped and we have vision data to see if there's a path forward
+                if len(Rover.nav_angles) < Rover.go_forward & len(Rover.vision_image[:,:,1]) > 1000:
+                    Rover.throttle = 0
+                    # Release the brake to allow turning
+                    Rover.brake = 0
+                    # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
+                    Rover.steer = Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+                
 
                     
                     
                 # If we're stopped but see sufficient navigable terrain in front then go!
-                if len(Rover.nav_angles) >= Rover.go_forward:
+                elif len(Rover.nav_angles) >= Rover.go_forward & len(Rover.vision_image[:,:,1]) <= 100:
                     # Set throttle back to stored value
-                    Rover.throttle = Rover.throttle_set
+                    Rover.throttle = 0.1
                     # Release the brake
                     Rover.brake = 0
                     # Set steer to mean angle
@@ -92,5 +132,7 @@ def decision_step(Rover):
         Rover.throttle = Rover.throttle_set
         Rover.steer = 0
         Rover.brake = 0
+    if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+        Rover.send_pickup = True
 
     return Rover
