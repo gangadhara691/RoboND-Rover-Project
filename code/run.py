@@ -14,3 +14,4 @@ cd Documents\209nano\RoboND-Rover-Project\code
 activate RoboND    
 
 python drive_rover.py
+
