@@ -20,8 +20,8 @@ def decision_step(Rover):
             
         if Rover.mode == 'forward': 
             # Check the extent of navigable terrain
-            if np.mean(Rover.rock_dists) <75 :
-                Rover.mode = 'rock'
+        #   if np.mean(Rover.rock_dists) <75 :
+        #       Rover.mode = 'rock'
                 
             if len(Rover.nav_angles) >= Rover.stop_forward:  
                 # If mode is forward, navigable terrain looks good 
@@ -92,40 +92,40 @@ def decision_step(Rover):
                     # Set steer to mean angle
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
                     Rover.mode = 'forward'
-                if  np.mean(Rover.rock_dists) <75:#len(Rover.vision_image[:,:,1]) > 500 and
-                    Rover.throttle = 0
-                    # Rover.brake = 10
-                    # Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                    Rover.mode = 'rock'
-        elif Rover.mode == 'rock':
-            #Rover.brake = 10
-            # If we're in stop mode but still moving keep braking
-            if Rover.vel > 0.2:
-                Rover.throttle = 0
-                Rover.brake = Rover.brake_set
-                Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-            # If we're not moving (vel < 0.2) then do something else
-            elif Rover.vel <= 0.2:
-                # Now we're stopped and we have vision data to see if there's a path forward
-                if np.mean(Rover.rock_dists) <75:
-                    Rover.throttle = 0.1
-                    Rover.brake = 0
-                    Rover.steer= np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                    Rover.mode="stop"
-                    if np.mean(Rover.rock_dists) <25:# or  np.mean(Rover.rock_angles  * 180/np.pi) in range (-5,5):
-                        Rover.throttle = 0.08
-                        Rover.steer= np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
-                        Rover.mode="rock"
-                        
-                elif np.mean(Rover.rock_dists)  >=75:
-                    # Set throttle back to stored value
-                    Rover.throttle = 0.1
-                    # Release the brake
-                    Rover.brake = 0
-                    # Set steer to mean angle
-                    Rover.steer = np.clip(np.mean(Rover.rock_angles * 180/np.pi), -15, 15)
-                    Rover.mode = 'forward'
-            
+    #           if  np.mean(Rover.rock_dists) <75:#len(Rover.vision_image[:,:,1]) > 500 and
+    #               Rover.throttle = 0
+    #               # Rover.brake = 10
+    #               # Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+    #               Rover.mode = 'rock'
+    #   elif Rover.mode == 'rock':
+    #       #Rover.brake = 10
+    #       # If we're in stop mode but still moving keep braking
+    #       if Rover.vel > 0.2:
+    #           Rover.throttle = 0
+    #           Rover.brake = Rover.brake_set
+    #           Rover.steer = np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+    #       # If we're not moving (vel < 0.2) then do something else
+    #       elif Rover.vel <= 0.2:
+    #           # Now we're stopped and we have vision data to see if there's a path forward
+    #           if np.mean(Rover.rock_dists) <75:
+    #               Rover.throttle = 0.1
+    #               Rover.brake = 0
+    #               Rover.steer= np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+    #               Rover.mode="stop"
+    #               if np.mean(Rover.rock_dists) <25:# or  np.mean(Rover.rock_angles  * 180/np.pi) in range (-5,5):
+    #                   Rover.throttle = 0.08
+    #                   Rover.steer= np.clip(np.mean(Rover.rock_angles  * 180/np.pi), -15, 15)
+    #                   Rover.mode="rock"
+    #                   
+    #           elif np.mean(Rover.rock_dists)  >=75:
+    #               # Set throttle back to stored value
+    #               Rover.throttle = 0.1
+    #               # Release the brake
+    #               Rover.brake = 0
+    #               # Set steer to mean angle
+    #               Rover.steer = np.clip(np.mean(Rover.rock_angles * 180/np.pi), -15, 15)
+    #               Rover.mode = 'forward'
+    #       
 #             # If we're not moving (vel < 0.2) then do something else
 #             elif Rover.vel <= 0.2 :
 #                 # Now we're stopped and we have vision data to see if there's a path forward
