@@ -149,7 +149,7 @@ def perception_step(Rover):
         #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
         #          Rover.vision_image[:,:,2] = navigable terrain color-thresholded binary image
     Rover.vision_image[:,:,0] =obs_map*255
-    #Rover.vision_image[:,:,1] =threshed_rock*255
+    Rover.vision_image[:,:,1] =threshed_rock*255
     Rover.vision_image[:,:,2] =threshed*255
     # 5) Convert map image pixel values to rover-centric coords
     xpix, ypix = rover_coords(threshed) 
@@ -194,8 +194,8 @@ def perception_step(Rover):
         #          Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
         #          Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
     Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
-    nav_pix= Rover.worldmap[:,:,2] > 50
-    Rover.worldmap[nav_pix,0]=0
+    #nav_pix= Rover.worldmap[:,:,2] > 25
+    #Rover.worldmap[nav_pix,0]=0
     if threshed_rock.any():
         xpix_r, ypix_r = rover_coords(threshed_rock)
         rover_rock_distances, rover_rock_angles = to_polar_coords(xpix_r, ypix_r)
@@ -203,7 +203,7 @@ def perception_step(Rover):
                                 rover_ypos, rover_yaw, 
                                 Rover.worldmap.shape[0], scale)
         rock_idx=np.argmin(rover_rock_distances)
-        rock_xcen,rock_ycen=rock_y_world[rock_idx], rock_x_world[rock_idx]
+        rock_ycen,rock_xcen=rock_y_world[rock_idx], rock_x_world[rock_idx]
         Rover.worldmap[rock_ycen, rock_xcen, 1]=255
         Rover.vision_image[:,:,1]=threshed_rock*255
     else:
