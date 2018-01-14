@@ -37,7 +37,7 @@ In `decision_step()`, this is the basic implemantation of decision_step()
 
 I ran the simulator at a resolution of 640x480  graphics quality.
 
-![rover](rover.png)
+![rover](rover.PNG)
 
 From the above image i mapped more than 40% of the worldmap with a fidelity more than 60%
 
